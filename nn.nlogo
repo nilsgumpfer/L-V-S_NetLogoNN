@@ -2,12 +2,12 @@ breed [input-nodes input-node]                         ;three types of neurons, 
 breed [hidden-nodes hidden-node]
 breed [output-nodes output-node]
 
-links-own [weight]                                     ;links have only one variable, the weight of the link..
-globals [errore target-answer]                         ;..error will be used to calculate network errors to know when the training is finished, target answer serves in the back propagation of the signal
+links-own [weight]                                     ;links have only one variable, the weight of the link
+globals [errore target-answer]                         ;this error will be used to calculate network errors to know when the training is finished, target answer serves in the back-propagation of the signal
 
 input-nodes-own [activation error] 
 output-nodes-own [activation error]
-hidden-nodes-own [activation error]                    ;neurons have two variables, the activation, which represents the message they have to send via their links, and the error that SERVIR will make during the propagation back.
+hidden-nodes-own [activation error]                    ;neurons have two variables, the activation, which represents the message they have to send via their links, and the error that SERVIR will make during the back-propagation.
                                                         
                                          
 
@@ -40,7 +40,7 @@ to setup-output-nodes
    create-output-nodes 1 [setxy 12 -3 set label "5"]
    create-output-nodes 1 [setxy 12 -6 set label "6"]
    create-output-nodes 1 [setxy 12 -9 set label "7"]
-    create-output-nodes 1 [setxy 14 9  set label "8"]
+   create-output-nodes 1 [setxy 14 9  set label "8"]
    create-output-nodes 1 [setxy 14 6  set label "9"]
    create-output-nodes 1 [setxy 14 3  set label "10"]
    create-output-nodes 1 [setxy 14 0  set label "11"]
@@ -232,7 +232,7 @@ learning-rate
 learning-rate
 0
 1
-0.2
+1
 0.01
 1
 NIL
@@ -327,7 +327,7 @@ esempi-periodo
 esempi-periodo
 1
 1000
-300
+50
 1
 1
 NIL
