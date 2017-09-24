@@ -1,14 +1,13 @@
-breed [input-nodes input-node]                         ;;tre tipi di neuroni, input, nascosti e output
+breed [input-nodes input-node]                         ;three types of neurons, input, hidden and output
 breed [hidden-nodes hidden-node]
 breed [output-nodes output-node]
 
-links-own [weight]                                     ;i link possiedono un'unica variabile, il peso del collegamento
-globals [errore target-answer]                         ;; errore servirà a calcolare gli errori della rete per sapere quando il training è finito, target answer
-                                                        ; serve nella retro propagazione del segnale.
+links-own [weight]                                     ;links have only one variable, the weight of the link..
+globals [errore target-answer]                         ;..error will be used to calculate network errors to know when the training is finished, target answer serves in the back propagation of the signal
+
 input-nodes-own [activation error] 
 output-nodes-own [activation error]
-hidden-nodes-own [activation error]                     ; i neuroni hanno due variabili, l'attivazione, che rappresenta il messagio che devono 
-                                                        ;spedire tramite i loro link, e l'errore che SERVIRà durante la retro propagazione.
+hidden-nodes-own [activation error]                    ;neurons have two variables, the activation, which represents the message they have to send via their links, and the error that SERVIR will make during the propagation back.
                                                         
                                          
 
@@ -64,8 +63,8 @@ to setup-hidden-nodes
 end
    
 to setup-links
-   connect-all input-nodes hidden-nodes           ;; colleghiamo i neuroni input con i neuroni nascosti ed i neuroni nascosti con i neuroni output,
-   connect-all hidden-nodes output-nodes           ; grazie a link direzionati.
+   connect-all input-nodes hidden-nodes           ;we connect input neurons with hidden neurons and hidden neurons with output neurons, thanks to directional links.
+   connect-all hidden-nodes output-nodes
    
 end 
    
@@ -79,13 +78,13 @@ end
 
 to train
    set errore 0
-   repeat esempi-periodo                                   ;;iniziamo il training della rete. al solo scopo di avere una misura dell'apprendimento della rete
+   repeat esempi-periodo                          ;We begin training the network. for the sole purpose of having a measure of network learning, we repeat a number of "examples-period examples" of experiments in each period.
    [ask input-nodes [set activation random 2]   
-             ; ripetiamo in ogni periodo un numero "esempi-periodo" di esperimenti
+
    propagate                                                    
    back-propagate
    ]
-   set errore errore / esempi-periodo                       ;; ogni periodo conta la percentuale di esempi andati male
+   set errore errore / esempi-periodo             ;each period counts the percentage of examples that have gone wrong
    tick
    do-plot
 end
@@ -97,9 +96,9 @@ to propagate
 end
 
 to-report new-activation 
-  report sigmoid sum [[activation] of end1 * weight] of my-in-links  ;; l'attivazione dei nodi input dipende dall'input, l'attivazione degli altri nodi è la somma 
-end                                                                   ; delle attivazioni che viaggiano sui collegamenti in entrata (my-in links), pesato con la forza dei collegamenti ed
-                                                                      ; inserito nella funzione sigmoide.
+  report sigmoid sum [[activation] of end1 * weight] of my-in-links  ;the activation of the input nodes depends on the input, the activation of the other nodes is the sum of the activations that travel on..
+end                                                                  ;..incoming connections (my-in links), weighed with the force of the connections and inserted in the sigmoid function.
+
 to-report sigmoid [input]
   report 1 / (1 + e ^ (- input))
 end
@@ -108,7 +107,7 @@ to back-propagate
    
    let target [activation] of input-node 0 * 2 ^ 0 + [activation] of input-node 1 * 2 ^ 1 + [activation] of input-node 2 * 2 ^ 2 + [activation] of input-node 3 * 2 ^ 3  
    show target
-   if target = 0 [set target-answer [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]                 ; per la retro porpagazione definisco il risultato target
+   if target = 0 [set target-answer [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]                 ;for the back porpagation define the target result
    if target = 1 [set target-answer [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
    if target = 2 [set target-answer [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0]]
    if target = 3 [set target-answer [1 1 1 0 0 0 0 0 0 0 0 0 0 0 0]]
@@ -124,23 +123,27 @@ to back-propagate
    if target = 13 [set target-answer [1 1 1 1 1 1 1 1 1 1 1 1 1 0 0]]
    if target = 14 [set target-answer [1 1 1 1 1 1 1 1 1 1 1 1 1 1 0]]
    if target = 15 [set target-answer [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]]
-   (foreach target-answer (sort output-nodes)[
-         ask ?2 [set error activation * (1 - activation) * (?1 - activation) ] ;; date le due liste target answer ed i nodi output messi in ordine, ho bisogno che il primo elemento 
-                                                                                ; della lista target sia uguale all'attivazione. ?1 - activation è la differenza tra il target e l'attivazione del nodo corrispondente ?2
-       ])
+   
+   (
+     foreach target-answer (sort output-nodes)
+     [
+         ask ?2 [set error activation * (1 - activation) * (?1 - activation) ] ;Given the two target answer lists and the output nodes put in order, I need the first element of the target list to be equal to the activation. .. 
+                                                                               ;..(? 1 - activation) is the difference between the target and the activation of the corresponding node ?2
+     ]
+   )
   
   ask hidden-nodes [
-    set error activation * (1 - activation) * sum [weight * [error] of end2] of my-out-links ;; l'errore si propaga indietro verso i neuroni nascosti
+    set error activation * (1 - activation) * sum [weight * [error] of end2] of my-out-links ;error spreads back to hidden neurons..
   ]
   ask links [
-    set weight weight + learning-rate * [error] of end2 * [activation] of end1  ; e va a modificare il peso dei collegamenti.
+    set weight weight + learning-rate * [error] of end2 * [activation] of end1  ; ..and changes the weight of the connections.
   ]
   if target != count output-nodes with [color = blue] [set errore errore + 1]  
 end
 
 to test
    clear-output
-   ask input-node 0 [set activation input-0]     ;; il TEST, l'utente può inserire un umero binario e provare la rete.
+   ask input-node 0 [set activation input-0]     ;TEST, the user can enter a binary number and try the network.
    ask input-node 1 [set activation input-1]
    ask input-node 2 [set activation input-2]
    ask input-node 3 [set activation input-3]
@@ -187,14 +190,6 @@ GRAPHICS-WINDOW
 0
 1
 ticks
-
-CC-WINDOW
-5
-511
-1076
-606
-Command Center
-0
 
 BUTTON
 9
@@ -271,7 +266,7 @@ CHOOSER
 input-2
 input-2
 0 1
-0
+1
 
 OUTPUT
 690
@@ -654,7 +649,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0
+NetLogo 4.1.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -671,4 +666,6 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
+@#$#@#$#@
+0
 @#$#@#$#@
