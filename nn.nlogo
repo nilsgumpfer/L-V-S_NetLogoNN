@@ -127,8 +127,8 @@ to back-propagate
    (
      foreach target-answer (sort output-nodes)
      [
-         ask ?2 [set error activation * (1 - activation) * (?1 - activation) ] ;Given the two target answer lists and the output nodes put in order, I need the first element of the target list to be equal to the activation. .. 
-                                                                               ;..(? 1 - activation) is the difference between the target and the activation of the corresponding node ?2
+         ask ?2 [set error activation * (1 - activation) * (?1 - activation) ] ;Given the two target answer lists and the output nodes put in order, I need the first element of the target list to be equal to the activation. 
+                                                                               ;(? 1 - activation) is the difference between the target and the activation of the corresponding node ?2
      ]
    )
   
